@@ -1,1 +1,7 @@
+com\anemona\vital_signs_processor\service\AlertService.class
 com\anemona\vital_signs_processor\VitalSignsProcessorApplication.class
+com\anemona\vital_signs_processor\dto\EstadoVitalDTO.class
+com\anemona\vital_signs_processor\config\KafkaConsumerConfig.class
+com\anemona\vital_signs_processor\dto\AlertaDTO.class
+com\anemona\vital_signs_processor\service\VitalSignsListener.class
+com\anemona\vital_signs_processor\KeepAliveRunner.class

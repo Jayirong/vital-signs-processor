@@ -9,7 +9,7 @@ import com.anemona.vital_signs_processor.dto.EstadoVitalDTO;
 @Service
 public class VitalSignsListener {
     
-    @KafkaListener(topics = "senales_vitales", groupId = "vital-signs-group")
+    @KafkaListener(topics = "senales_vitales", groupId = "anemona_group")
     public void listen(EstadoVitalDTO estadoVital) {
         System.out.println("RESIVIDOCCCC: " + estadoVital);
     }
