@@ -18,7 +18,7 @@ public class VitalSignsListener {
     @Autowired
     private AlertService alertService;
 
-    private static final String PARAMETROS_VITALES_URL = "http://localhost:8080/api/parametros-vitales/activos";
+    private static final String PARAMETROS_VITALES_URL = "http://aneback:8080/api/parametros-vitales/activos";
     
     @SuppressWarnings("null")
     @KafkaListener(topics = "senales_vitales", groupId = "anemona_group")
