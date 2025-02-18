@@ -1,6 +1,8 @@
+C:\Users\gabri\Escritorio\projects\Cloud\Anemona\vital-signs-processor\src\main\java\com\anemona\vital_signs_processor\config\AppConfig.java
 C:\Users\gabri\Escritorio\projects\Cloud\Anemona\vital-signs-processor\src\main\java\com\anemona\vital_signs_processor\config\KafkaConsumerConfig.java
 C:\Users\gabri\Escritorio\projects\Cloud\Anemona\vital-signs-processor\src\main\java\com\anemona\vital_signs_processor\dto\AlertaDTO.java
 C:\Users\gabri\Escritorio\projects\Cloud\Anemona\vital-signs-processor\src\main\java\com\anemona\vital_signs_processor\dto\EstadoVitalDTO.java
+C:\Users\gabri\Escritorio\projects\Cloud\Anemona\vital-signs-processor\src\main\java\com\anemona\vital_signs_processor\dto\ParametrosVitalesDTO.java
 C:\Users\gabri\Escritorio\projects\Cloud\Anemona\vital-signs-processor\src\main\java\com\anemona\vital_signs_processor\KeepAliveRunner.java
 C:\Users\gabri\Escritorio\projects\Cloud\Anemona\vital-signs-processor\src\main\java\com\anemona\vital_signs_processor\service\AlertService.java
 C:\Users\gabri\Escritorio\projects\Cloud\Anemona\vital-signs-processor\src\main\java\com\anemona\vital_signs_processor\service\VitalSignsListener.java
