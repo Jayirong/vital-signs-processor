@@ -28,10 +28,17 @@ public class AlertService {
         alerta.setId_paciente(estadoVital.getId_paciente());
         alerta.setParametro_alterado(parametro);
         alerta.setVisto(false);
-        alerta.setId_estado_vital(null); //luego vemos
+
+        //asignamos un id random 
+        alerta.setId_estado_vital(estadoVital.getId_estado() != null ? estadoVital.getId_estado() : generarIdEstadoVital()); //luego vemos
 
         //Enviar alerta a Kafka
-        kafkaTemplate.send(ALERTAS_TOPIC, alerta);
+        kafkaTemplate.send(ALERTAS_TOPIC, alerta);      
+    }
+
+    //si no existe un id para el estado vital nos sacamos uno del poto
+    private Long generarIdEstadoVital() {
+        return System.currentTimeMillis(); 
     }
 
 }
