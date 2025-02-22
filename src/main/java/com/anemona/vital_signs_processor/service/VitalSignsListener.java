@@ -27,6 +27,11 @@ public class VitalSignsListener {
         // consultamos desde aneback los parametros
         ParametrosVitalesDTO parametrosActivos = restTemplate.getForObject(PARAMETROS_VITALES_URL, ParametrosVitalesDTO.class);
 
+        //preparacion para subir el EA
+        Long pacienteId = estadoVital.getId_paciente();
+
+        boolean alertaGenerada = false; //flag para discriminar si se genero una alerta
+
         //validamos datos de signos vitales
         if (estadoVital.getFrecuencia_cardiaca() < parametrosActivos.getFrecuencia_cardiaca_min() ||
             estadoVital.getFrecuencia_cardiaca() > parametrosActivos.getFrecuencia_cardiaca_max()) {
@@ -34,9 +39,10 @@ public class VitalSignsListener {
                                     calcularNivelAlerta(estadoVital.getFrecuencia_cardiaca(),
                                                         parametrosActivos.getFrecuencia_cardiaca_min(),
                                                         parametrosActivos.getFrecuencia_cardiaca_max()),
-                                    "Frecuencia Cardiaca", estadoVital);
-                
+                                    "Frecuencia Cardiaca", estadoVital);                
             System.out.println("ALERTA: Frecuencia cardíaca fuera de rango.");
+
+            alertaGenerada = true;
         }
 
         if (estadoVital.getPresion_arterial_sis() < parametrosActivos.getPresion_arterial_sis_min() ||
@@ -47,6 +53,8 @@ public class VitalSignsListener {
                                                         parametrosActivos.getPresion_arterial_sis_max()),
                                     "Presion Arterial Sistolica", estadoVital);                
             System.out.println("ALERTA: Presion arterial sistolica fuera de rango.");
+
+            alertaGenerada = true;
         }
 
         if (estadoVital.getPresion_arterial_dias() < parametrosActivos.getPresion_arterial_dias_min() ||
@@ -57,6 +65,8 @@ public class VitalSignsListener {
                                                         parametrosActivos.getPresion_arterial_dias_max()),
                                     "Presion Arterial Diastolica", estadoVital);
             System.out.println("ALERTA: Presion arterial diastolica fuera de rango.");
+
+            alertaGenerada = true;
         }
 
         if (estadoVital.getSaturacion_oxigeno() < parametrosActivos.getSaturacion_oxigeno_min()) {
@@ -66,6 +76,14 @@ public class VitalSignsListener {
                                                     null),
                                     PARAMETROS_VITALES_URL, estadoVital);
             System.out.println("ALERTA: Stauracion de oxigeno fuera de rango.");
+
+            alertaGenerada = true;
+        }
+
+        //vemos si en el transcurso se geneo una alerta
+        if (alertaGenerada) {
+            alertService.procesarAlerta(estadoVital, pacienteId);
+            System.err.println("subiendo alerta a AlertService");
         }
 
         //if todo ok manda esto
