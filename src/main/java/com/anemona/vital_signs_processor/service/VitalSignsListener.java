@@ -74,7 +74,7 @@ public class VitalSignsListener {
                                     calcularNivelAlerta(estadoVital.getSaturacion_oxigeno(),
                                                     parametrosActivos.getSaturacion_oxigeno_min(),
                                                     null),
-                                    PARAMETROS_VITALES_URL, estadoVital);
+                                    "Saturación de oxígeno", estadoVital);
             System.out.println("ALERTA: Stauracion de oxigeno fuera de rango.");
 
             alertaGenerada = true;

@@ -6,6 +6,8 @@ import java.time.LocalTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,19 +38,12 @@ public class AlertService {
         alerta.setParametro_alterado(parametro);
         alerta.setVisto(false);
 
-        //asignamos un id random 
-        alerta.setId_estado_vital(estadoVital.getId_estado() != null ? estadoVital.getId_estado() : generarIdEstadoVital()); //luego vemos
-
         //Enviar alerta a Kafka
         kafkaTemplate.send(ALERTAS_TOPIC, alerta);      
     }
 
-    //si no existe un id para el estado vital nos sacamos uno del poto
-    private Long generarIdEstadoVital() {
-        return System.currentTimeMillis(); 
-    }
-
-    //metodo para procesar el estado vital a OCI
+    //metodo para procesar el estado vital a OCI, de paso habilitamos un retry para que intente 3 veces si falla
+    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public void procesarAlerta(EstadoVitalDTO estadoVital, Long pacienteId) {
 
         String url = ANEBACK_URL + pacienteId;
@@ -62,6 +57,7 @@ public class AlertService {
             }
         } catch (Exception e) {
             System.err.println("Error al comunicarse con aneback: " + e.getMessage());
+            throw e;
         }
 
     }
