@@ -23,72 +23,90 @@ public class VitalSignsListener {
     @SuppressWarnings("null")
     @KafkaListener(topics = "senales_vitales", groupId = "anemona_group")
     public void listen(EstadoVitalDTO estadoVital) {
-        
-        // consultamos desde aneback los parametros
+    
+        // Consultamos los parámetros desde aneback
         ParametrosVitalesDTO parametrosActivos = restTemplate.getForObject(PARAMETROS_VITALES_URL, ParametrosVitalesDTO.class);
-
-        //preparacion para subir el EA
         Long pacienteId = estadoVital.getId_paciente();
-
-        boolean alertaGenerada = false; //flag para discriminar si se genero una alerta
-
-        //validamos datos de signos vitales
+    
+        boolean alertaGenerada = false;
+    
+        // Validamos los signos vitales
         if (estadoVital.getFrecuencia_cardiaca() < parametrosActivos.getFrecuencia_cardiaca_min() ||
             estadoVital.getFrecuencia_cardiaca() > parametrosActivos.getFrecuencia_cardiaca_max()) {
-            alertService.createAlert("Frecuencia Cardiaca fuera de rango",
-                                    calcularNivelAlerta(estadoVital.getFrecuencia_cardiaca(),
-                                                        parametrosActivos.getFrecuencia_cardiaca_min(),
-                                                        parametrosActivos.getFrecuencia_cardiaca_max()),
-                                    "Frecuencia Cardiaca", estadoVital);                
-            System.out.println("ALERTA: Frecuencia cardíaca fuera de rango.");
-
             alertaGenerada = true;
         }
-
+    
         if (estadoVital.getPresion_arterial_sis() < parametrosActivos.getPresion_arterial_sis_min() ||
             estadoVital.getPresion_arterial_sis() > parametrosActivos.getPresion_arterial_sis_max()) {
-            alertService.createAlert("Presion Arterial Sistolica fuera de rango",
-                                    calcularNivelAlerta(estadoVital.getPresion_arterial_sis(),
-                                                        parametrosActivos.getPresion_arterial_sis_min(),
-                                                        parametrosActivos.getPresion_arterial_sis_max()),
-                                    "Presion Arterial Sistolica", estadoVital);                
-            System.out.println("ALERTA: Presion arterial sistolica fuera de rango.");
-
             alertaGenerada = true;
         }
-
+    
         if (estadoVital.getPresion_arterial_dias() < parametrosActivos.getPresion_arterial_dias_min() ||
             estadoVital.getPresion_arterial_dias() > parametrosActivos.getPresion_arterial_dias_max()) {
-            alertService.createAlert("Presion Arterial Diastolica fuera de rango",
-                                    calcularNivelAlerta(estadoVital.getPresion_arterial_dias(),
-                                                        parametrosActivos.getPresion_arterial_dias_min(),
-                                                        parametrosActivos.getPresion_arterial_dias_max()),
-                                    "Presion Arterial Diastolica", estadoVital);
-            System.out.println("ALERTA: Presion arterial diastolica fuera de rango.");
-
             alertaGenerada = true;
         }
-
+    
         if (estadoVital.getSaturacion_oxigeno() < parametrosActivos.getSaturacion_oxigeno_min()) {
-            alertService.createAlert("Saturacion de oxigeno baja",
-                                    calcularNivelAlerta(estadoVital.getSaturacion_oxigeno(),
-                                                    parametrosActivos.getSaturacion_oxigeno_min(),
-                                                    null),
-                                    "Saturación de oxígeno", estadoVital);
-            System.out.println("ALERTA: Stauracion de oxigeno fuera de rango.");
-
             alertaGenerada = true;
         }
-
-        //vemos si en el transcurso se geneo una alerta
+    
+        // **Si se genera una alerta, primero registramos el estado vital**
         if (alertaGenerada) {
-            alertService.procesarAlerta(estadoVital, pacienteId);
-            System.err.println("subiendo alerta a AlertService");
+            EstadoVitalDTO estadoVitalGuardado = alertService.procesarAlerta(estadoVital, pacienteId);
+    
+            if (estadoVitalGuardado != null) {
+                // Asignamos el ID correcto al estado vital
+                estadoVital.setId_estado(estadoVitalGuardado.getId_estado());
+                System.err.println("ESTADO VITAL REGISTRADO CORRECTAMENTE EN ANEBACK CON ID: " + estadoVital.getId_estado());
+    
+                // Ahora sí generamos la alerta con el ID correcto
+                if (estadoVital.getFrecuencia_cardiaca() < parametrosActivos.getFrecuencia_cardiaca_min() ||
+                    estadoVital.getFrecuencia_cardiaca() > parametrosActivos.getFrecuencia_cardiaca_max()) {
+                    alertService.createAlert("Frecuencia Cardiaca fuera de rango",
+                        calcularNivelAlerta(estadoVital.getFrecuencia_cardiaca(),
+                                            parametrosActivos.getFrecuencia_cardiaca_min(),
+                                            parametrosActivos.getFrecuencia_cardiaca_max()),
+                        "Frecuencia Cardiaca", estadoVital);
+                    System.out.println("ALERTA: Frecuencia cardíaca fuera de rango.");
+                }
+    
+                if (estadoVital.getPresion_arterial_sis() < parametrosActivos.getPresion_arterial_sis_min() ||
+                    estadoVital.getPresion_arterial_sis() > parametrosActivos.getPresion_arterial_sis_max()) {
+                    alertService.createAlert("Presion Arterial Sistolica fuera de rango",
+                        calcularNivelAlerta(estadoVital.getPresion_arterial_sis(),
+                                            parametrosActivos.getPresion_arterial_sis_min(),
+                                            parametrosActivos.getPresion_arterial_sis_max()),
+                        "Presion Arterial Sistolica", estadoVital);
+                    System.out.println("ALERTA: Presion arterial sistolica fuera de rango.");
+                }
+    
+                if (estadoVital.getPresion_arterial_dias() < parametrosActivos.getPresion_arterial_dias_min() ||
+                    estadoVital.getPresion_arterial_dias() > parametrosActivos.getPresion_arterial_dias_max()) {
+                    alertService.createAlert("Presion Arterial Diastolica fuera de rango",
+                        calcularNivelAlerta(estadoVital.getPresion_arterial_dias(),
+                                            parametrosActivos.getPresion_arterial_dias_min(),
+                                            parametrosActivos.getPresion_arterial_dias_max()),
+                        "Presion Arterial Diastolica", estadoVital);
+                    System.out.println("ALERTA: Presion arterial diastolica fuera de rango.");
+                }
+    
+                if (estadoVital.getSaturacion_oxigeno() < parametrosActivos.getSaturacion_oxigeno_min()) {
+                    alertService.createAlert("Saturacion de oxigeno baja",
+                        calcularNivelAlerta(estadoVital.getSaturacion_oxigeno(),
+                                            parametrosActivos.getSaturacion_oxigeno_min(),
+                                            null),
+                        "Saturación de oxígeno", estadoVital);
+                    System.out.println("ALERTA: Saturación de oxígeno fuera de rango.");
+                }
+    
+            } else {
+                System.err.println("ERROR: NO SE PUEDE OBTENER EL ESTADO VITAL REGISTRADO");
+                return;
+            }
         }
-
-        //if todo ok manda esto
-        System.out.println("Estado Vital Recibido: " + estadoVital);
-
+    
+        // Si no hubo alerta, no enviamos el estado vital
+        System.out.println("Estado Vital normal recibido pero no enviado a aneback: " + estadoVital);
     }
 
     private int calcularNivelAlerta(double valor, Number min, Number max) {
